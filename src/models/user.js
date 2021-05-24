@@ -2,6 +2,7 @@ const mongoose= require('mongoose')
 const validator= require('validator')
 const bcrypt= require('bcryptjs')
 const jwt= require('jsonwebtoken')
+const Book= require('../models/book')
 
 const userSchema= new mongoose.Schema({
     name:{
@@ -43,6 +44,12 @@ const userSchema= new mongoose.Schema({
             required: true
         }
     }]
+})
+
+userSchema.virtual('tasks', {
+    ref: 'Book',
+    localField: '_id',
+    foreignField: 'owner'
 })
 
 //Hiding the important information before sending the response.
@@ -91,7 +98,13 @@ userSchema.pre('save', async function(next){
     }
 })
 
-//userSchema.pre('remove')
+
+//To delete all the books after the user is deleted.
+userSchema.pre('remove', async function(next){
+    const user= this
+    await Book.deleteMany({owner: user._id})
+    next()
+})
 
 
 const User= mongoose.model('Member', userSchema)
