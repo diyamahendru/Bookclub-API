@@ -64,7 +64,7 @@ userSchema.statics.findByCredentials= async(email, password)=>{
         throw new Error('Id does not exist.')
     }
 
-    const match= await bcrypt.compare(user.password, password)
+    const match= await bcrypt.compare(password, user.password)
     if(!match){
         throw new Error('Wrong password. Unable to login.')
     }
@@ -75,6 +75,7 @@ userSchema.statics.findByCredentials= async(email, password)=>{
 userSchema.methods.generateToken= async function(){
     const user= this
     const token= jwt.sign({_id: user._id.toString()}, 'wholesomegigachad')
+    //console.log(token)
 
     user.tokens= user.tokens.concat({token})
     await user.save()

@@ -24,15 +24,16 @@ router.post('/users/login', async(req,res)=>{
         const token= await user.generateToken()
         res.send({user, token})
     }catch(e){
+        console.log(e)
         res.status(400).send()
     }
 })
 
 //Log out for a user.
-router.post('users/logout', async(req,res)=>{
+router.post('/users/logout', auth, async(req,res)=>{
     try{
         req.user.tokens= req.user.tokens.filter((token)=>{
-            return token.token!== token.token
+            return token.token!== req.token
         })
         await req.user.save()
         res.send()
@@ -42,12 +43,12 @@ router.post('users/logout', async(req,res)=>{
 })
 
 //See your personal details.
-router.get('users/me', auth, async(req, res)=>{
+router.get('/users/me', auth, async(req, res)=>{
     res.send(req.user)
 })
 
 //Change personal details.
-router.patch('users/me', auth, async(req, res)=>{
+router.patch('/users/me', auth, async(req, res)=>{
     const updates= Object.keys(req.body)
     const allowedUpdates= ['name', 'email', 'password']
     const isValidOperation = updates.every((update)=> allowedUpdates.includes(update))
@@ -66,7 +67,7 @@ router.patch('users/me', auth, async(req, res)=>{
 })
 
 //Delete your account.
-router.delete('users/me', auth, async(req,res)=>{
+router.delete('/users/me', auth, async(req,res)=>{
     try{
         await req.user.remove()
         res.send(req.user)
