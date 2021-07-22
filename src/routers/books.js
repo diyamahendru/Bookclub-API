@@ -1,7 +1,6 @@
 const express= require('express')
 const Book= require('../models/book')
 const auth= require('../middleware/auth')
-const Task = require('c:/users/dmcut/onedrive/desktop/src/models/task')
 const router= new express.Router()
 
 //Add a book review.
@@ -22,8 +21,8 @@ router.post('/book', auth, async(req, res)=>{
 //View all your book reviews.
 router.get('/books', auth, async(req,res)=>{
     try{
-        const books= await book.find({owner: req.user._id})
-        res.send(books)
+        await req.user.populate('books').execPopulate()
+        res.send(req.user.books)
     }catch(e){
         res.status(500).send()
     }
@@ -31,9 +30,9 @@ router.get('/books', auth, async(req,res)=>{
 
 //View a particular review.
 router.get('/books/:id', auth, async(req, res)=>{
-    const _id= req.params._id
+    const _id= req.params.id
     try{
-        const book= await Book.findOne({_id, owner:req.user._id})
+        const book= await Book.findOne({_id})
         if(!book){
             return res.status(404).send()
         }
