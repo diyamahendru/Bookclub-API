@@ -1,5 +1,6 @@
 const express= require('express')
 const Book= require('../models/book')
+const User= require('../models/user')
 const auth= require('../middleware/auth')
 const router= new express.Router()
 
@@ -74,6 +75,22 @@ router.delete('/books/:id', auth, async(req,res)=>{
             res.status(400).send()
         }
         res.send(book)
+    }catch(e){
+        res.status(500).send()
+    }
+})
+
+//View timeline reviews.
+router.get('/timeline/all', auth, async(req,res)=>{
+    try{
+        //The Promise.all() method takes an iterable of promises as an input, and returns a single Promise that resolves 
+        //to an array of the results of the input promises.
+        const userReviews = await Book.find({owner:req.user._id})
+        const friendReviews= await Promise.all(req.user.friends.map((friendID)=>{
+            return Book.find({owner:friendID});
+        })
+    );
+    res.send(userReviews.concat(...friendReviews))
     }catch(e){
         res.status(500).send()
     }

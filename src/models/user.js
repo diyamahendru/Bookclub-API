@@ -35,7 +35,7 @@ const userSchema= new mongoose.Schema({
     },
     friends:[{
         friend:{
-            type: String
+            type: String,
         }
     }],
     tokens:[{
